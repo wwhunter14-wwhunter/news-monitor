@@ -62,7 +62,7 @@
     .sbtn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:12px;cursor:pointer;font-weight:600;margin-top:7px;margin-right:6px}.sbtn.g{background:var(--green);color:#000}.sbtn.r{background:rgba(255,68,68,.15);color:var(--red);border:1px solid rgba(255,68,68,.3)}
     .tgsw{width:44px;height:24px;background:var(--border);border-radius:12px;position:relative;cursor:pointer;transition:background .2s;border:none;flex-shrink:0}.tgsw.on{background:var(--blue)}.tgsw::after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:left .2s}.tgsw.on::after{left:22px}
     .sselect{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:13px;outline:none;-webkit-appearance:none}.sselect:focus{border-color:var(--blue)}
-    .kwli{display:flex;align-items:center;gap:10px;padding:11px 16px;border-top:1px solid var(--border)}.kwld{width:11px;height:11px;border-radius:50%;flex-shrink:0}.kwln{flex:1;font-size:13px}.kwdel{background:none;border:none;color:var(--text3);cursor:pointer;font-size:20px;padding:3px;line-height:1}
+    .kwli{display:flex;align-items:center;gap:10px;padding:11px 16px;border-top:1px solid var(--border)}.kwld{width:11px;height:11px;border-radius:50%;flex-shrink:0}.kwln{flex:1;font-size:13px}.kwdel{background:none;border:none;color:var(--text3);cursor:pointer;font-size:20px;padding:3px;line-height:1}.kwedit{background:none;border:none;color:var(--blue);cursor:pointer;font-size:14px;padding:3px 5px;line-height:1;opacity:.7}.kwedit:active{opacity:1}
     .akwf{padding:10px 14px;border-top:1px solid var(--border);display:flex;gap:8px}.akwi{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:9px 11px;color:var(--text);font-size:13px;outline:none}.akwi:focus{border-color:var(--blue)}.akwb{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:9px 14px;font-size:13px;cursor:pointer;font-weight:600;white-space:nowrap}
     .srch-wrap{margin:0 12px 8px}.srch-inp{width:100%;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px 10px 38px;font-size:14px;color:var(--text1);outline:none;box-sizing:border-box;-webkit-appearance:none}.srch-inp:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(74,144,255,.15)}.srch-wrap-inner{position:relative}.srch-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none}.srch-res{margin:0 12px 8px;font-size:12px;color:var(--text2)}.kwc-actions{display:flex;gap:6px;margin-top:8px}.kwc-ref{background:rgba(255,255,255,.1);border:none;border-radius:6px;color:inherit;font-size:13px;cursor:pointer;padding:3px 8px;opacity:.8;transition:all .15s}.kwc-ref:active{transform:scale(.9);opacity:1}.kwc-ref.spin{animation:spin 1s linear infinite;display:inline-block}
     .fab-wrap{position:fixed;right:15px;bottom:calc(var(--nav-h)+14px);display:flex;flex-direction:column;gap:11px;z-index:90}.fab{width:50px;height:50px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 4px 18px rgba(0,0,0,.5);transition:all .2s}.fab:active{transform:scale(.88)}.fab-s{background:var(--red)}.fab-r{background:var(--blue)}.fab-r.spin{animation:spin 1s linear infinite}
@@ -125,15 +125,15 @@
   <div class="ss"><div class="sst">키워드 관리</div><div id="kwSet"></div><div class="akwf"><input type="text" class="akwi" id="newKwInp" placeholder="키워드 입력 (예: 삼성전자)" onkeydown="if(event.key==='Enter')addKw()"><button class="akwb" onclick="addKw()">+ 추가</button></div></div>
   <div class="ss"><div class="sst">데이터</div>
     <div class="sr"><span class="si">🗑️</span><div class="sc2"><div class="sl">전체 초기화</div><div class="sd">수집된 모든 뉴스·영상 삭제</div><button class="sbtn r" style="margin-top:8px" onclick="clearData()">초기화</button></div></div>
-    <div class="sr"><span class="si">ℹ️</span><div class="sc2"><div class="sl">뉴스 모니터 v2.0</div><div class="sd">Google News RSS 3중 프록시 + YouTube API v3</div></div></div>
+    <div class="sr"><span class="si">ℹ️</span><div class="sc2"><div class="sl">뉴스 모니터 v2.1</div><div class="sd">Google News RSS 3중 프록시 + YouTube API v3</div></div></div>
   </div>
   <div style="height:16px"></div>
 </div>
 <div class="fab-wrap"><button class="fab fab-s" id="fabS" onclick="toggleAuto()">⏹</button><button class="fab fab-r" id="fabR" onclick="manualRefresh()">↻</button></div>
 <nav class="bnav">
   <button class="nb active" id="nb-home" onclick="nav('home')"><span class="ni2">🏠</span><span class="nl">홈</span><div class="nbdg" id="b-home"></div></button>
-  <button class="nb" id="nb-daemyung" onclick="nav('daemyung')"><span class="ni2">📈</span><span class="nl">대명</span><div class="nbdg" id="b-daemyung"></div></button>
-  <button class="nb" id="nb-hurim" onclick="nav('hurim')"><span class="ni2">🤖</span><span class="nl">휴림</span><div class="nbdg" id="b-hurim"></div></button>
+  <button class="nb" id="nb-all-news" onclick="nav('all-news')"><span class="ni2">📰</span><span class="nl">전체</span><div class="nbdg" id="b-all-news"></div></button>
+  <button class="nb" id="nb-new-news" onclick="nav('new-news')"><span class="ni2">🔴</span><span class="nl">신규</span><div class="nbdg" id="b-new-news"></div></button>
   <button class="nb" id="nb-youtube" onclick="nav('youtube')"><span class="ni2">▶</span><span class="nl">YouTube</span><div class="nbdg" id="b-youtube"></div></button>
   <button class="nb" id="nb-settings" onclick="nav('settings')"><span class="ni2">⚙️</span><span class="nl">설정</span><div class="nbdg" id="b-settings"></div></button>
 </nav>
@@ -172,7 +172,7 @@ const PROXIES=[
   }
 ]
 
-function defS(){return{cfg:{ytKey:'',notif:false,newsInt:60,ytInt:180},kws:[{id:'daemyung',name:'대명에너지',color:'blue',icon:'📈',def:true},{id:'hurim',name:'휴림로봇',color:'green',icon:'🤖',def:true},{id:'energy',name:'에너지',color:'orange',icon:'⚡',def:true}],news:{},yt:{vids:{},quota:0,lastAt:null},lastNews:null,kwLast:{}};}
+function defS(){return{cfg:{ytKey:'',notif:false,newsInt:60,ytInt:180},kws:[],news:{},yt:{vids:{},quota:0,lastAt:null},lastNews:null,kwLast:{}};}
 let S=loadS();
 let curPage='home',curKwId=null,autoOn=true,nBusy=false,yBusy=false,nLeft=0,yLeft=0,tick=null;
 
@@ -183,11 +183,9 @@ function nav(page,kwId,fromPop){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
   curPage=page;
-  const NM={home:'nb-home',daemyung:'nb-daemyung',hurim:'nb-hurim',youtube:'nb-youtube',settings:'nb-settings','all-news':'nb-home','new-news':'nb-home',kw:'nb-home'};
+  const NM={home:'nb-home',youtube:'nb-youtube',settings:'nb-settings','all-news':'nb-all-news','new-news':'nb-new-news',kw:'nb-home'};
   const nb=document.getElementById(NM[page]||'nb-home');if(nb)nb.classList.add('active');
   if(page==='home'){show('page-home');clrB('home');renderHome();}
-  else if(page==='daemyung'){curKwId='daemyung';show('page-kw');clrB('daemyung');renderKw('daemyung');}
-  else if(page==='hurim'){curKwId='hurim';show('page-kw');clrB('hurim');renderKw('hurim');}
   else if(page==='youtube'){show('page-youtube');clrB('youtube');renderYT();}
   else if(page==='settings'){show('page-settings');renderSet();}
   else if(page==='all-news'){show('page-all-news');renderAll();}
@@ -206,7 +204,7 @@ function renderHome(){
   el('kwScroll').innerHTML=S.kws.map(kw=>{
     const a=S.news[kw.id]||[],nc=a.filter(x=>x.isNew).length;
     const[bc,bt]=nc>0?['bn','+'+nc]:a.length>0?['bo','최신']:['bx','없음'];
-    const fn=(kw.id==='daemyung'||kw.id==='hurim')?`nav('${kw.id}')`:`nav('kw','${kw.id}')`;
+    const fn=`nav('kw','${kw.id}')`;
     return`<div class="kwc ${kw.color}"><div onclick="${fn}" style="flex:1;min-width:0"><div class="kwch"><span class="kwci">${kw.icon}</span><span class="kwcn">${kw.name}</span><span class="kwcb ${bc}">${bt}</span></div><div class="kwcv">${a.length}</div><div class="kwcs">${nc>0?nc+'건 신규':'수집됨'}</div></div><div class="kwc-actions"><button class="kwc-ref" onclick="event.stopPropagation();refreshKwById('${kw.id}',this)" title="이 키워드만 새로고침">↻</button></div></div>`;
   }).join('');
   const q=S.yt.quota||0;$v('qTxt',`${q}/10K`);el('qFill').style.width=Math.min(q/100,100)+'%';
@@ -222,7 +220,7 @@ function renderAll(){el('allTabs').innerHTML=`<button class="ftab active" onclic
 function filterAll(id,btn){if(btn){el('allTabs').querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');}let a=[];if(id==='all'){S.kws.forEach(k=>{(S.news[k.id]||[]).forEach(x=>a.push({...x,kwName:k.name}));});}else{const k=S.kws.find(x=>x.id===id);a=(S.news[id]||[]).map(x=>({...x,kwName:k?.name}));}a.sort((x,y)=>+new Date(y.pubDate)-+new Date(x.pubDate));renderNList(el('allList'),a);}
 function renderYT(){el('ytTabs').innerHTML=`<button class="ftab active" onclick="filterYT('all',this)">전체</button>`+S.kws.map(k=>`<button class="ftab" onclick="filterYT('${k.id}',this)">${k.icon} ${k.name}</button>`).join('');const all=[];S.kws.forEach(k=>{(S.yt.vids[k.id]||[]).forEach(v=>all.push({...v,kwName:k.name}));});all.sort((a,b)=>+new Date(b.pubAt)-+new Date(a.pubAt));$v('ytSub',`총 ${all.length}개 · 신규 ${all.filter(v=>v.isNew).length}개`);updUpd('ytUpd',S.yt.lastAt);hideE('ytErr');renderVList(el('ytList'),all);}
 function filterYT(id,btn){if(btn){el('ytTabs').querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');}let v=[];if(id==='all'){S.kws.forEach(k=>{(S.yt.vids[k.id]||[]).forEach(x=>v.push({...x,kwName:k.name}));});}else{const k=S.kws.find(x=>x.id===id);v=(S.yt.vids[id]||[]).map(x=>({...x,kwName:k?.name}));}v.sort((a,b)=>+new Date(b.pubAt)-+new Date(a.pubAt));renderVList(el('ytList'),v);}
-function renderSet(){const k=el('ytKeyInp');k.value=S.cfg.ytKey||'';k.placeholder=S.cfg.ytKey?'저장됨 (변경하려면 입력)':'AIzaSy...';el('notifTg').className='tgsw'+(S.cfg.notif?' on':'');el('newsSel').value=S.cfg.newsInt;el('ytSel').value=S.cfg.ytInt;el('kwSet').innerHTML=S.kws.map(kw=>`<div class="kwli"><div class="kwld" style="background:var(--${kw.color})"></div><span class="kwln">${kw.icon} ${kw.name}</span>${kw.def?'<span style="font-size:10px;color:var(--text3)">기본</span>':''}<button class="kwdel" onclick="delKw('${kw.id}')" ${kw.def?'style="opacity:.25"':''}>×</button></div>`).join('');}
+function renderSet(){const k=el('ytKeyInp');k.value=S.cfg.ytKey||'';k.placeholder=S.cfg.ytKey?'저장됨 (변경하려면 입력)':'AIzaSy...';el('notifTg').className='tgsw'+(S.cfg.notif?' on':'');el('newsSel').value=S.cfg.newsInt;el('ytSel').value=S.cfg.ytInt;el('kwSet').innerHTML=S.kws.length?S.kws.map(kw=>`<div class="kwli" id="kwli_${kw.id}"><div class="kwld" style="background:var(--${kw.color})"></div><span class="kwln">${kw.icon} ${kw.name}</span><button class="kwedit" onclick="editKwInline('${kw.id}')">✏️</button><button class="kwdel" onclick="delKw('${kw.id}')">×</button></div>`).join(''):'<div style="padding:14px 16px;font-size:12px;color:var(--text3)">등록된 키워드가 없습니다. 아래에서 추가하세요.</div>';}
 function renderNList(c,arts){c.innerHTML=arts&&arts.length?[...arts].sort((a,b)=>+new Date(b.pubDate)-+new Date(a.pubDate)).map(a=>nHTML(a)).join(''):emptyH('🔍','뉴스 없음','↻ 버튼을 눌러 뉴스를 수집하세요');}
 function renderVList(c,vids){if(!vids.length){c.innerHTML=emptyH('▶','영상 없음',S.cfg.ytKey?'↻ 버튼을 눌러보세요':'설정 → YouTube API Key 입력 후 ↻');return;}c.innerHTML=vids.map(v=>`<a class="yi" href="https://www.youtube.com/watch?v=${v.vid}" target="_blank" rel="noopener"><div class="yt">${v.thumb?`<img src="${v.thumb}" loading="lazy" onerror="this.parentElement.textContent='▶'">`:'▶'}${v.isNew?'<span class="ynp">NEW</span>':''}</div><div class="yinfo"><div class="ytt">${esc(v.title)}</div><div class="ymeta"><span class="ych">🔴 ${esc(v.ch)}</span><span>·</span><span>${ago(v.pubAt)}</span>${v.kwName?`<span>· ${esc(v.kwName)}</span>`:''}</div></div></a>`).join('');}
 function nHTML(a){return`<a class="ni ${a.isNew?'isnew':''}" href="${esc(a.link)}" target="_blank" rel="noopener"><div class="nih"><div class="nit">${esc(a.title)}</div>${a.isNew?'<span class="ntag">NEW</span>':''}</div><div class="nim"><span class="nsr">${esc(a.src||'뉴스')}</span>${a.kwName?`<span class="nkw">${esc(a.kwName)}</span>`:''}<span>${ago(a.pubDate)}</span></div>${a.desc?`<div class="nd">${esc(stripH(a.desc))}</div>`:''}</a>`;}
@@ -242,7 +240,7 @@ async function fetchNews(force=false){
       const oldArts=(S.news[kw.id]||[]).map(a=>({...a,isNew:false}));
       const fresh=arts.filter(a=>!existIds.has(a.id)).map(a=>({...a,isNew:true,fetchAt:new Date().toISOString()}));
       totalNew+=fresh.length;S.news[kw.id]=[...fresh,...oldArts].slice(0,150);S.kwLast[kw.id]=new Date().toISOString();
-      if(fresh.length>0)setB(kw.id==='daemyung'||kw.id==='hurim'?kw.id:'home');
+      if(fresh.length>0)setB('home');
     }catch(e){console.warn('뉴스 실패:',kw.name,e.message);fails++;}
     await ms(1200);
   }
@@ -345,7 +343,7 @@ async function fetchSingleKw(kwId){
     S.news[kw.id]=[...fresh,...old].slice(0,150);
     S.kwLast[kw.id]=new Date().toISOString();
     S.lastNews=new Date().toISOString();
-    if(fresh.length>0){setB(kw.id==='daemyung'||kw.id==='hurim'?kw.id:'home');toast(`✨ [${kw.name}] ${fresh.length}건 신규!`,'s');}
+    if(fresh.length>0){setB('home');toast(`✨ [${kw.name}] ${fresh.length}건 신규!`,'s');}
     else toast(`[${kw.name}] 최신 상태 ✓`,'i');
     saveS();reRender();setStatus('on','');
   }catch(e){
@@ -396,8 +394,34 @@ function saveYtInt(){S.cfg.ytInt=+el('ytSel').value;saveS();resetYTimer();toast(
 function saveIntervals(){S.cfg.newsInt=+el('newsSel').value;S.cfg.ytInt=+el('ytSel').value;saveS();resetNTimer();resetYTimer();toast('✅ 설정 저장됨','s');}
 async function refreshHome(){const btn=el('homeRefBtn');if(btn){btn.classList.add('spin');btn.disabled=true;}await fetchNews(true);if(btn){btn.classList.remove('spin');btn.disabled=false;}}
 async function refreshHomeYT(){const btn=el('homeRefYTBtn');if(btn){btn.classList.add('spin');btn.disabled=true;}await fetchYT(true);if(btn){btn.classList.remove('spin');btn.disabled=false;}}
+
+// 키워드 인라인 편집
+function editKwInline(id){
+  const kw=S.kws.find(k=>k.id===id);if(!kw)return;
+  const row=document.getElementById('kwli_'+id);if(!row)return;
+  row.innerHTML=`
+    <div class="kwld" style="background:var(--${kw.color})"></div>
+    <input id="kwe_icon" value="${kw.icon}" style="width:36px;background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:4px 6px;color:var(--text);font-size:13px;text-align:center">
+    <input id="kwe_name" value="${kw.name}" style="flex:1;background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text);font-size:13px;outline:none">
+    <select id="kwe_color" style="background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:4px 6px;color:var(--text);font-size:12px">
+      ${['blue','green','orange','purple','cyan','pink'].map(c=>`<option value="${c}" ${kw.color===c?'selected':''}>${c}</option>`).join('')}
+    </select>
+    <button onclick="saveKwEdit('${id}')" style="background:var(--blue);border:none;border-radius:6px;padding:4px 10px;color:#fff;font-size:12px;cursor:pointer;font-weight:600">저장</button>
+    <button onclick="renderSet()" style="background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text2);font-size:12px;cursor:pointer">취소</button>`;
+  document.getElementById('kwe_name').focus();
+}
+function saveKwEdit(id){
+  const kw=S.kws.find(k=>k.id===id);if(!kw)return;
+  const name=document.getElementById('kwe_name').value.trim();
+  const icon=document.getElementById('kwe_icon').value.trim()||kw.icon;
+  const color=document.getElementById('kwe_color').value;
+  if(!name){toast('키워드 이름을 입력하세요','e');return;}
+  if(S.kws.find(k=>k.id!==id&&k.name===name)){toast('이미 있는 키워드','e');return;}
+  kw.name=name;kw.icon=icon;kw.color=color;
+  saveS();renderSet();renderHome();toast(`'${name}' 수정됨`,'s');
+}
 function addKw(){const inp=el('newKwInp'),name=inp.value.trim();if(!name)return;if(S.kws.find(k=>k.name===name)){toast('이미 있는 키워드','e');return;}S.kws.push({id:'kw_'+Date.now(),name,color:COLORS[S.kws.length%COLORS.length],icon:ICONS[Math.floor(Math.random()*ICONS.length)],def:false});inp.value='';saveS();renderSet();renderHome();toast(`'${name}' 추가됨`,'s');}
-function delKw(id){const kw=S.kws.find(k=>k.id===id);if(!kw)return;if(kw.def){toast('기본 키워드는 삭제 불가','e');return;}if(!confirm(`'${kw.name}' 삭제?`))return;S.kws=S.kws.filter(k=>k.id!==id);delete S.news[id];delete S.yt.vids[id];saveS();renderSet();renderHome();toast(`'${kw.name}' 삭제됨`,'i');}
+function delKw(id){const kw=S.kws.find(k=>k.id===id);if(!kw)return;if(!confirm(`'${kw.name}' 삭제?`))return;S.kws=S.kws.filter(k=>k.id!==id);delete S.news[id];delete S.yt.vids[id];saveS();renderSet();renderHome();toast(`'${kw.name}' 삭제됨`,'i');}
 function clearData(){if(!confirm('모든 뉴스 데이터를 삭제할까요?'))return;S.news={};S.yt={vids:{},quota:0,lastAt:null};S.lastNews=null;S.kwLast={};saveS();renderHome();toast('초기화 완료','i');}
 
 function notify(title,body){if(!S.cfg.notif||!('Notification' in window)||Notification.permission!=='granted')return;if('serviceWorker' in navigator&&navigator.serviceWorker.controller)navigator.serviceWorker.controller.postMessage({type:'NOTIFY',title,body});else try{new Notification(title,{body});}catch(e){}}
