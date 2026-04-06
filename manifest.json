@@ -1,0 +1,32 @@
+{
+  "name": "뉴스 모니터",
+  "short_name": "뉴스모니터",
+  "description": "주식·키워드 뉴스 자동 모니터링 앱 - 대명에너지, 휴림로봇 외 커스텀 키워드",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0a14",
+  "theme_color": "#0a0a14",
+  "lang": "ko",
+  "categories": ["news", "finance"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='40' fill='%230a0a14'/><text y='140' x='20' font-size='140'>📰</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%230a0a14'/><text y='380' x='40' font-size='380'>📰</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    { "name": "홈", "url": "/#home", "description": "뉴스 대시보드" },
+    { "name": "YouTube", "url": "/#youtube", "description": "YouTube 최신 영상" }
+  ],
+  "screenshots": [],
+  "prefer_related_applications": false
+}

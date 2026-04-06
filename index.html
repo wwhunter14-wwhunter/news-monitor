@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="theme-color" content="#0a0a14">
+  <link rel="manifest" href="manifest.json">
+  <title>뉴스 모니터</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    :root{--bg:#0a0a14;--card:#13131f;--card2:#1c1c2e;--border:#252538;--text:#e0e0ff;--text2:#8888aa;--text3:#444466;--blue:#4a90ff;--green:#4ade80;--orange:#ffa040;--red:#ff4444;--purple:#a855f7;--cyan:#22d3ee;--pink:#f472b6;--nav-h:64px;--hdr-h:54px;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+    .hdr{position:fixed;top:0;left:0;right:0;height:var(--hdr-h);background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 16px;z-index:100}
+    .hdr-left{display:flex;align-items:center;gap:10px}
+    .hdr-logo{width:32px;height:32px;background:linear-gradient(135deg,#4a90ff,#7c3aed);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+    .hdr-title{font-size:17px;font-weight:700}
+    .hdr-right{display:flex;align-items:center;gap:8px}
+    .sdot{width:9px;height:9px;border-radius:50%;flex-shrink:0;transition:all .3s}
+    .sdot.idle{background:var(--text3)}.sdot.on{background:var(--green);box-shadow:0 0 8px var(--green);animation:p 2s infinite}.sdot.busy{background:var(--green);box-shadow:0 0 8px var(--green);animation:p .5s infinite}
+    @keyframes p{0%,100%{opacity:1}50%{opacity:.2}}
+    .page{display:none;padding-top:calc(var(--hdr-h)+8px);padding-bottom:calc(var(--nav-h)+20px);min-height:100vh}.page.active{display:block}
+    .tbar{margin:6px 12px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between}
+    .tbar-lbl{font-size:12px;color:var(--text2);display:flex;align-items:center;gap:5px}
+    .tbar-vals{display:flex;align-items:center;gap:7px;font-weight:700;font-variant-numeric:tabular-nums;font-size:13px}
+    .tv-n{color:var(--blue)}.tv-y{color:var(--red)}.tv-s{color:var(--text3);font-weight:400}.tv-lbl{font-size:10px;color:var(--text3);font-weight:400}
+    .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 12px}
+    .sc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px 15px;cursor:pointer;transition:background .15s}.sc:active{background:var(--card2)}
+    .sc-lbl{font-size:11px;color:var(--text2);margin-bottom:5px}.sc-val{font-size:30px;font-weight:800;line-height:1}
+    .cb{color:var(--blue)}.cr{color:var(--red)}.co{color:var(--orange)}.cg{color:var(--green)}
+    .sh{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 4px}.sh-ttl{font-size:13px;font-weight:600}.sh-cnt{font-size:12px;color:var(--text2)}
+    .kwsc{overflow-x:auto;padding:4px 12px 12px;display:flex;gap:10px;scrollbar-width:none}.kwsc::-webkit-scrollbar{display:none}
+    .kwc{flex-shrink:0;background:var(--card);border-radius:12px;padding:12px 13px;min-width:108px;cursor:pointer;transition:opacity .15s;display:flex;align-items:flex-start;}.kwc:active{opacity:.7}
+    .kwc.blue{border:1px solid rgba(74,144,255,.35);box-shadow:0 0 14px rgba(74,144,255,.08)}.kwc.green{border:1px solid rgba(74,222,128,.35);box-shadow:0 0 14px rgba(74,222,128,.08)}.kwc.orange{border:1px solid rgba(255,160,64,.35);box-shadow:0 0 14px rgba(255,160,64,.08)}.kwc.purple{border:1px solid rgba(168,85,247,.35);box-shadow:0 0 14px rgba(168,85,247,.08)}.kwc.cyan{border:1px solid rgba(34,211,238,.35);box-shadow:0 0 14px rgba(34,211,238,.08)}.kwc.pink{border:1px solid rgba(244,114,182,.35);box-shadow:0 0 14px rgba(244,114,182,.08)}
+    .kwch{display:flex;align-items:center;gap:5px;margin-bottom:8px}.kwci{font-size:13px}.kwcn{font-size:11px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:68px;flex:1}.kwcb{font-size:9px;padding:2px 5px;border-radius:4px;margin-left:auto;flex-shrink:0}
+    .bn{background:rgba(255,68,68,.2);color:var(--red)}.bo{background:rgba(74,222,128,.2);color:var(--green)}.bx{background:rgba(136,136,170,.15);color:var(--text2)}
+    .kwcv{font-size:26px;font-weight:800;line-height:1;margin-bottom:3px}.kwc.blue .kwcv{color:var(--blue)}.kwc.green .kwcv{color:var(--green)}.kwc.orange .kwcv{color:var(--orange)}.kwc.purple .kwcv{color:var(--purple)}.kwc.cyan .kwcv{color:var(--cyan)}.kwc.pink .kwcv{color:var(--pink)}.kwcs{font-size:10px;color:var(--text3)}
+    .quota{margin:0 12px 6px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:9px 14px}.qt{display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:6px}.qtr{height:4px;background:var(--border);border-radius:2px;overflow:hidden}.qf{height:100%;background:linear-gradient(90deg,var(--red),var(--orange));border-radius:2px;transition:width .4s}
+    .infob{margin:0 12px 6px;padding:7px 12px;background:var(--card);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--text3)}.infob span{color:var(--text2)}
+    .errb{margin:0 12px 8px;background:rgba(255,68,68,.08);border:1px solid rgba(255,68,68,.3);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--red);display:none;line-height:1.5}.errb.on{display:block}
+    .phdr{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 8px;gap:8px}.phdr-l{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+    .pbk{background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--text2);font-size:19px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:background .15s}.pbk:active{background:var(--border)}
+    .phi{flex:1;min-width:0}.pttl{font-size:19px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.psub{font-size:12px;color:var(--text2);margin-top:2px}
+    .phdr-r{display:flex;gap:7px;flex-shrink:0}.pref{background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--blue);font-size:21px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s;line-height:1}.pref:active{background:var(--border)}
+    .pref.spin{animation:spin 1s linear infinite}
+    @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+    #homeRefBtn.spin .ref-icon,#homeRefYTBtn.spin .ref-icon{display:inline-block;animation:spin 1s linear infinite}
+    #homeRefBtn:disabled,#homeRefYTBtn:disabled{opacity:.6;cursor:not-allowed}
+    .ftabs{display:flex;overflow-x:auto;padding:4px 12px 8px;gap:7px;scrollbar-width:none}.ftabs::-webkit-scrollbar{display:none}.ftab{flex-shrink:0;padding:5px 13px;border-radius:20px;border:1px solid var(--border);background:none;color:var(--text2);font-size:11px;cursor:pointer;transition:all .15s}.ftab.active{background:var(--blue);border-color:var(--blue);color:#fff}
+    .nwrap{padding:0 12px}.ni{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px;margin-bottom:8px;text-decoration:none;display:block;color:inherit;animation:fu .2s ease}.ni:active{background:var(--card2)}.ni.isnew{border-left:3px solid var(--red)}
+    .nih{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px}.nit{font-size:13px;font-weight:500;line-height:1.45;flex:1}.ntag{flex-shrink:0;background:var(--red);color:#fff;font-size:9px;padding:2px 6px;border-radius:4px;font-weight:700;margin-top:1px}
+    .nim{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2);flex-wrap:wrap}.nsr{background:var(--card2);padding:2px 7px;border-radius:4px}.nkw{padding:2px 6px;border-radius:4px;font-size:10px;background:rgba(100,100,200,.18);color:var(--text2)}.nd{font-size:11px;color:var(--text3);margin-top:5px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    @keyframes fu{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+    .yi{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden;text-decoration:none;display:block;color:inherit;animation:fu .2s ease}.yi:active{background:var(--card2)}
+    .yt{width:100%;height:185px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:44px;overflow:hidden;position:relative}.yt img{width:100%;height:100%;object-fit:cover}.ynp{position:absolute;top:8px;right:8px;background:var(--red);color:#fff;font-size:9px;padding:3px 7px;border-radius:20px;font-weight:700}
+    .yinfo{padding:12px}.ytt{font-size:13px;font-weight:500;line-height:1.4;margin-bottom:7px}.ymeta{font-size:11px;color:var(--text2);display:flex;align-items:center;gap:7px;flex-wrap:wrap}.ych{color:#ff4444;font-weight:500}
+    .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:56px 20px}.ei{font-size:44px;margin-bottom:14px;opacity:.3}.et{font-size:15px;font-weight:600;color:var(--text2);margin-bottom:7px}.es{font-size:12px;color:var(--text3);text-align:center;line-height:1.5}
+    .ss{margin:0 12px 14px;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}.sst{font-size:11px;color:var(--text2);padding:11px 16px 7px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+    .sr{padding:13px 16px;display:flex;align-items:center;gap:11px;border-top:1px solid var(--border)}.sr:first-of-type{border-top:none}.si{font-size:17px;width:22px;text-align:center;flex-shrink:0}.sc2{flex:1;min-width:0}.sl{font-size:13px;font-weight:500;margin-bottom:2px}.sd{font-size:11px;color:var(--text2)}
+    .sinp{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:13px;margin-top:7px;font-family:monospace;outline:none}.sinp:focus{border-color:var(--blue)}
+    .sbtn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:12px;cursor:pointer;font-weight:600;margin-top:7px;margin-right:6px}.sbtn.g{background:var(--green);color:#000}.sbtn.r{background:rgba(255,68,68,.15);color:var(--red);border:1px solid rgba(255,68,68,.3)}
+    .tgsw{width:44px;height:24px;background:var(--border);border-radius:12px;position:relative;cursor:pointer;transition:background .2s;border:none;flex-shrink:0}.tgsw.on{background:var(--blue)}.tgsw::after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:left .2s}.tgsw.on::after{left:22px}
+    .sselect{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:13px;outline:none;-webkit-appearance:none}.sselect:focus{border-color:var(--blue)}
+    .kwli{display:flex;align-items:center;gap:10px;padding:11px 16px;border-top:1px solid var(--border)}.kwld{width:11px;height:11px;border-radius:50%;flex-shrink:0}.kwln{flex:1;font-size:13px}.kwdel{background:none;border:none;color:var(--text3);cursor:pointer;font-size:20px;padding:3px;line-height:1}
+    .akwf{padding:10px 14px;border-top:1px solid var(--border);display:flex;gap:8px}.akwi{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:9px 11px;color:var(--text);font-size:13px;outline:none}.akwi:focus{border-color:var(--blue)}.akwb{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:9px 14px;font-size:13px;cursor:pointer;font-weight:600;white-space:nowrap}
+    .srch-wrap{margin:0 12px 8px}.srch-inp{width:100%;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px 10px 38px;font-size:14px;color:var(--text1);outline:none;box-sizing:border-box;-webkit-appearance:none}.srch-inp:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(74,144,255,.15)}.srch-wrap-inner{position:relative}.srch-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none}.srch-res{margin:0 12px 8px;font-size:12px;color:var(--text2)}.kwc-actions{display:flex;gap:6px;margin-top:8px}.kwc-ref{background:rgba(255,255,255,.1);border:none;border-radius:6px;color:inherit;font-size:13px;cursor:pointer;padding:3px 8px;opacity:.8;transition:all .15s}.kwc-ref:active{transform:scale(.9);opacity:1}.kwc-ref.spin{animation:spin 1s linear infinite;display:inline-block}
+    .fab-wrap{position:fixed;right:15px;bottom:calc(var(--nav-h)+14px);display:flex;flex-direction:column;gap:11px;z-index:90}.fab{width:50px;height:50px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 4px 18px rgba(0,0,0,.5);transition:all .2s}.fab:active{transform:scale(.88)}.fab-s{background:var(--red)}.fab-r{background:var(--blue)}.fab-r.spin{animation:spin 1s linear infinite}
+    .bnav{position:fixed;bottom:0;left:0;right:0;height:var(--nav-h);background:var(--bg);border-top:1px solid var(--border);display:flex;z-index:100}.nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:none;border:none;color:var(--text3);cursor:pointer;gap:3px;position:relative;transition:color .2s}.nb.active{color:var(--blue)}.ni2{font-size:21px;line-height:1}.nl{font-size:9px;font-weight:600;letter-spacing:.3px}
+    .nbdg{position:absolute;top:7px;right:calc(50% - 16px);width:8px;height:8px;background:var(--red);border-radius:50%;display:none;box-shadow:0 0 6px var(--red)}.nbdg.on{display:block}
+    .toast{position:fixed;top:calc(var(--hdr-h)+10px);left:50%;transform:translateX(-50%) translateY(-80px);background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:9px 18px;font-size:12px;font-weight:600;z-index:300;transition:transform .3s;white-space:nowrap;box-shadow:0 6px 20px rgba(0,0,0,.5)}.toast.show{transform:translateX(-50%) translateY(0)}.toast.s{border-color:var(--green);color:var(--green)}.toast.e{border-color:var(--red);color:var(--red)}.toast.i{border-color:var(--blue);color:var(--blue)}
+    ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+  </style>
+</head>
+<body>
+<header class="hdr">
+  <div class="hdr-left"><div class="hdr-logo">📰</div><span class="hdr-title">뉴스 모니터</span></div>
+  <div class="hdr-right"><span id="fetchStatus" style="font-size:11px;color:var(--text3)"></span><div class="sdot idle" id="sdot"></div></div>
+</header>
+<div class="toast" id="toast"></div>
+<div class="page active" id="page-home">
+  <div class="tbar"><div class="tbar-lbl" id="fetchStatus" style="font-size:11px;color:var(--text2)">⏰ 대기 중</div><div class="tbar-vals"><span class="tv-n" id="tnews">--:--</span><span class="tv-s">|</span><span class="tv-lbl">YT</span><span class="tv-y" id="tyt">--:--</span></div></div>
+  <div style="display:flex;gap:8px;margin:0 12px 6px">
+    <button id="homeRefBtn" onclick="refreshHome()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:rgba(74,144,255,.15);border:1px solid rgba(74,144,255,.4);color:#4a90ff;border-radius:10px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s"><span style="font-size:16px;display:inline-block" class="ref-icon">↻</span> 뉴스 새로고침</button>
+    <button id="homeRefYTBtn" onclick="refreshHomeYT()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:rgba(255,68,68,.15);border:1px solid rgba(255,68,68,.4);color:#ff4444;border-radius:10px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s"><span style="font-size:16px;display:inline-block" class="ref-icon">↻</span> YouTube 새로고침</button>
+  </div>
+  <div class="srch-wrap"><div class="srch-wrap-inner"><span class="srch-icon">🔍</span><input type="search" class="srch-inp" id="srchInp" placeholder="뉴스 검색..." oninput="doSearch(this.value)" autocomplete="off"></div></div><div id="srchRes" class="srch-res" style="display:none"></div><div class="sgrid">
+    <div class="sc" onclick="nav('all-news')"><div class="sc-lbl">총 뉴스</div><div class="sc-val cb" id="sTot">0</div></div>
+    <div class="sc" onclick="nav('new-news')"><div class="sc-lbl">신규 뉴스</div><div class="sc-val cr" id="sNew">0</div></div>
+    <div class="sc" onclick="nav('youtube')"><div class="sc-lbl">유튜브 영상</div><div class="sc-val co" id="sYT">0</div></div>
+    <div class="sc" onclick="nav('youtube')"><div class="sc-lbl">신규 영상</div><div class="sc-val cg" id="sNewYT">0</div></div>
+  </div>
+  <div><div class="sh"><span class="sh-ttl">🏦 키워드 현황</span><span class="sh-cnt" id="kwCnt">0개</span></div><div class="kwsc" id="kwScroll"></div></div>
+  <div class="quota"><div class="qt"><span>YT Quota</span><span id="qTxt">0/10K</span></div><div class="qtr"><div class="qf" id="qFill" style="width:0%"></div></div></div>
+  <div class="infob" id="homeUpd">🕐 마지막 업데이트: <span>없음</span></div>
+  <div class="errb" id="homeErr"></div>
+  <div><div class="sh"><span class="sh-ttl">🔔 최신 뉴스</span><span class="sh-cnt" id="latCnt">0건</span></div><div class="nwrap" id="homeList"><div class="empty"><div class="ei">🔍</div><div class="et">뉴스 없음</div><div class="es">↻ 버튼을 눌러 뉴스를 수집하세요</div></div></div></div>
+</div>
+<div class="page" id="page-kw">
+  <div class="phdr"><div class="phdr-l"><button class="pbk" onclick="nav('home')">←</button><div class="phi"><div class="pttl" id="kwTtl">키워드</div><div class="psub" id="kwSub">0건</div></div></div><div class="phdr-r"><button class="pref" id="kwRef" onclick="doRefKw()">↻</button></div></div>
+  <div class="infob" id="kwUpd">🕐 마지막 업데이트: <span>없음</span></div><div class="errb" id="kwErr"></div><div class="nwrap" id="kwList"></div>
+</div>
+<div class="page" id="page-new-news">
+  <div class="phdr"><div class="phdr-l"><button class="pbk" onclick="nav('home')">←</button><div class="phi"><div class="pttl">🔴 신규 뉴스</div><div class="psub" id="newSub">0건</div></div></div><div class="phdr-r"><button class="pref" id="newRef" onclick="doRefNew()">↻</button></div></div>
+  <div class="nwrap" id="newList"></div>
+</div>
+<div class="page" id="page-all-news">
+  <div class="phdr"><div class="phdr-l"><button class="pbk" onclick="nav('home')">←</button><div class="phi"><div class="pttl">전체 뉴스</div></div></div><div class="phdr-r"><button class="pref" id="allRef" onclick="doRefAll()">↻</button></div></div>
+  <div class="ftabs" id="allTabs"></div><div class="nwrap" id="allList"></div>
+</div>
+<div class="page" id="page-youtube">
+  <div class="phdr"><div class="phdr-l"><button class="pbk" onclick="nav('home')">←</button><div class="phi"><div class="pttl">▶ YouTube</div><div class="psub" id="ytSub">영상 목록</div></div></div><div class="phdr-r"><button class="pref" id="ytRef" onclick="doRefYT()">↻</button></div></div>
+  <div class="infob" id="ytUpd">🕐 마지막 업데이트: <span>없음</span></div><div class="errb" id="ytErr"></div><div class="ftabs" id="ytTabs"></div>
+  <div class="nwrap" id="ytList"><div class="empty"><div class="ei">▶</div><div class="et">영상 없음</div><div class="es">설정 → YouTube API Key 입력 후<br>↻ 버튼을 누르세요</div></div></div>
+</div>
+<div class="page" id="page-settings">
+  <div class="phdr"><div class="phdr-l"><button class="pbk" onclick="nav('home')">←</button><div class="phi"><div class="pttl">⚙️ 설정</div></div></div></div>
+  <div class="ss"><div class="sst">YouTube API</div><div class="sr"><span class="si">🔑</span><div class="sc2"><div class="sl">API Key</div><div class="sd">앱 재실행 후에도 영구 저장됩니다</div><input type="password" class="sinp" id="ytKeyInp" placeholder="AIzaSy..."><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap"><button class="sbtn" onclick="saveYtKey()">저장</button><button class="sbtn g" onclick="testYtKey()">테스트</button><button class="sbtn r" onclick="clearYtKey()">삭제</button></div></div></div></div>
+  <div class="ss"><div class="sst">알림 · 갱신</div>
+    <div class="sr"><span class="si">🔔</span><div class="sc2"><div class="sl">브라우저 알림</div><div class="sd">새 뉴스 알림 수신</div></div><button class="tgsw" id="notifTg" onclick="toggleNotif()"></button></div>
+    <div class="sr"><span class="si">⏱️</span><div class="sc2"><div class="sl">뉴스 갱신 주기</div><select class="sselect" id="newsSel"><option value="30">30분</option><option value="60" selected>60분</option><option value="120">2시간</option><option value="180">3시간</option></select></div></div>
+    <div class="sr"><span class="si">📺</span><div class="sc2"><div class="sl">YouTube 갱신 주기</div><select class="sselect" id="ytSel"><option value="60">1시간</option><option value="120">2시간</option><option value="180" selected>3시간</option><option value="360">6시간</option></select></div></div>
+    <div class="sr" style="padding-top:10px;padding-bottom:14px"><span class="si"></span><div class="sc2"><button class="sbtn" style="width:100%;text-align:center;padding:12px;font-size:14px;border-radius:10px;margin-top:0" onclick="saveIntervals()">✅ 갱신 주기 저장하기</button></div></div>
+  </div>
+  <div class="ss"><div class="sst">키워드 관리</div><div id="kwSet"></div><div class="akwf"><input type="text" class="akwi" id="newKwInp" placeholder="키워드 입력 (예: 삼성전자)" onkeydown="if(event.key==='Enter')addKw()"><button class="akwb" onclick="addKw()">+ 추가</button></div></div>
+  <div class="ss"><div class="sst">데이터</div>
+    <div class="sr"><span class="si">🗑️</span><div class="sc2"><div class="sl">전체 초기화</div><div class="sd">수집된 모든 뉴스·영상 삭제</div><button class="sbtn r" style="margin-top:8px" onclick="clearData()">초기화</button></div></div>
+    <div class="sr"><span class="si">ℹ️</span><div class="sc2"><div class="sl">뉴스 모니터 v2.0</div><div class="sd">Google News RSS 3중 프록시 + YouTube API v3</div></div></div>
+  </div>
+  <div style="height:16px"></div>
+</div>
+<div class="fab-wrap"><button class="fab fab-s" id="fabS" onclick="toggleAuto()">⏹</button><button class="fab fab-r" id="fabR" onclick="manualRefresh()">↻</button></div>
+<nav class="bnav">
+  <button class="nb active" id="nb-home" onclick="nav('home')"><span class="ni2">🏠</span><span class="nl">홈</span><div class="nbdg" id="b-home"></div></button>
+  <button class="nb" id="nb-daemyung" onclick="nav('daemyung')"><span class="ni2">📈</span><span class="nl">대명</span><div class="nbdg" id="b-daemyung"></div></button>
+  <button class="nb" id="nb-hurim" onclick="nav('hurim')"><span class="ni2">🤖</span><span class="nl">휴림</span><div class="nbdg" id="b-hurim"></div></button>
+  <button class="nb" id="nb-youtube" onclick="nav('youtube')"><span class="ni2">▶</span><span class="nl">YouTube</span><div class="nbdg" id="b-youtube"></div></button>
+  <button class="nb" id="nb-settings" onclick="nav('settings')"><span class="ni2">⚙️</span><span class="nl">설정</span><div class="nbdg" id="b-settings"></div></button>
+</nav>
+<script>
+const SK='NM_v4';
+const YT_API='https://www.googleapis.com/youtube/v3/search';
+const COLORS=['blue','green','orange','purple','cyan','pink'];
+const ICONS=['📈','🤖','⚡','🏭','💡','🔬','🌱','💊','🚀','🏗️','🎯','💰','🔋','🌐','🖥️'];
+
+/* ══ 3중 프록시 ══ */
+const PROXIES=[
+  // P1: rss2json - count 없이 사용 (무료 CORS 지원 확인됨)
+  async(u)=>{
+    const r=await fetchT('https://api.rss2json.com/v1/api.json?rss_url='+enc(u),10000);
+    if(!r.ok)throw new Error('rss2json HTTP '+r.status);
+    const d=await r.json();
+    if(d.status!=='ok')throw new Error(d.message||'rss2json err');
+    if(!d.items||!d.items.length)throw new Error('rss2json 빈결과');
+    return d.items.map(parseJ);
+  },
+  // P2: codetabs (trailing slash 사용)
+  async(u)=>{
+    const r=await fetchT('https://api.codetabs.com/v1/proxy/?quest='+enc(u),10000);
+    if(!r.ok)throw new Error('codetabs '+r.status);
+    const t=await r.text();
+    if(!t||!t.includes('<item>'))throw new Error('codetabs 빈결과');
+    return parseXML(t);
+  },
+  // P3: allorigins /get
+  async(u)=>{
+    const r=await fetchT('https://api.allorigins.win/get?url='+enc(u),12000);
+    if(!r.ok)throw new Error('allorigins '+r.status);
+    const d=await r.json();
+    if(!d.contents||!d.contents.includes('<item>'))throw new Error('allorigins 빈결과');
+    return parseXML(d.contents);
+  }
+]
+
+function defS(){return{cfg:{ytKey:'',notif:false,newsInt:60,ytInt:180},kws:[{id:'daemyung',name:'대명에너지',color:'blue',icon:'📈',def:true},{id:'hurim',name:'휴림로봇',color:'green',icon:'🤖',def:true},{id:'energy',name:'에너지',color:'orange',icon:'⚡',def:true}],news:{},yt:{vids:{},quota:0,lastAt:null},lastNews:null,kwLast:{}};}
+let S=loadS();
+let curPage='home',curKwId=null,autoOn=true,nBusy=false,yBusy=false,nLeft=0,yLeft=0,tick=null;
+
+function loadS(){try{const r=localStorage.getItem(SK);if(r){const p=JSON.parse(r),d=defS();return{cfg:{...d.cfg,...(p.cfg||{})},kws:p.kws||d.kws,news:p.news||{},yt:{...d.yt,...(p.yt||{}),vids:(p.yt&&p.yt.vids)||{}},lastNews:p.lastNews||null,kwLast:p.kwLast||{}};}}catch(e){}return defS();}
+function saveS(){try{localStorage.setItem(SK,JSON.stringify(S))}catch(e){}}
+
+function nav(page,kwId,fromPop){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  curPage=page;
+  const NM={home:'nb-home',daemyung:'nb-daemyung',hurim:'nb-hurim',youtube:'nb-youtube',settings:'nb-settings','all-news':'nb-home','new-news':'nb-home',kw:'nb-home'};
+  const nb=document.getElementById(NM[page]||'nb-home');if(nb)nb.classList.add('active');
+  if(page==='home'){show('page-home');clrB('home');renderHome();}
+  else if(page==='daemyung'){curKwId='daemyung';show('page-kw');clrB('daemyung');renderKw('daemyung');}
+  else if(page==='hurim'){curKwId='hurim';show('page-kw');clrB('hurim');renderKw('hurim');}
+  else if(page==='youtube'){show('page-youtube');clrB('youtube');renderYT();}
+  else if(page==='settings'){show('page-settings');renderSet();}
+  else if(page==='all-news'){show('page-all-news');renderAll();}
+  else if(page==='new-news'){show('page-new-news');renderNewNews();}
+  else if(page==='kw'&&kwId){curKwId=kwId;show('page-kw');renderKw(kwId);}
+  window.scrollTo(0,0);
+}
+function show(id){document.getElementById(id).classList.add('active')}
+function clrB(id){const e=document.getElementById('b-'+id);if(e)e.classList.remove('on')}
+function setB(id){const e=document.getElementById('b-'+id);if(e)e.classList.add('on')}
+
+function renderHome(){
+  let tot=0,nc=0;S.kws.forEach(k=>{const a=S.news[k.id]||[];tot+=a.length;nc+=a.filter(x=>x.isNew).length;});
+  const vAll=Object.values(S.yt.vids).flat(),nv=vAll.filter(v=>v.isNew).length;
+  $v('sTot',tot);$v('sNew',nc);$v('sYT',vAll.length);$v('sNewYT',nv);$v('kwCnt',S.kws.length+'개');
+  el('kwScroll').innerHTML=S.kws.map(kw=>{
+    const a=S.news[kw.id]||[],nc=a.filter(x=>x.isNew).length;
+    const[bc,bt]=nc>0?['bn','+'+nc]:a.length>0?['bo','최신']:['bx','없음'];
+    const fn=(kw.id==='daemyung'||kw.id==='hurim')?`nav('${kw.id}')`:`nav('kw','${kw.id}')`;
+    return`<div class="kwc ${kw.color}"><div onclick="${fn}" style="flex:1;min-width:0"><div class="kwch"><span class="kwci">${kw.icon}</span><span class="kwcn">${kw.name}</span><span class="kwcb ${bc}">${bt}</span></div><div class="kwcv">${a.length}</div><div class="kwcs">${nc>0?nc+'건 신규':'수집됨'}</div></div><div class="kwc-actions"><button class="kwc-ref" onclick="event.stopPropagation();refreshKwById('${kw.id}',this)" title="이 키워드만 새로고침">↻</button></div></div>`;
+  }).join('');
+  const q=S.yt.quota||0;$v('qTxt',`${q}/10K`);el('qFill').style.width=Math.min(q/100,100)+'%';
+  updUpd('homeUpd',S.lastNews);hideE('homeErr');
+  let all=[];S.kws.forEach(k=>{(S.news[k.id]||[]).forEach(a=>all.push({...a,kwName:k.name}));});
+  all.sort((a,b)=>+new Date(b.pubDate)-+new Date(a.pubDate));
+  const top=all.slice(0,40);$v('latCnt',top.length+'건');
+  if(!srchQ){el('homeList').innerHTML=top.length?top.map(a=>nHTML(a)).join(''):emptyH('🔍','뉴스 없음','↻ 버튼을 눌러 뉴스를 수집하세요');}else{doSearch(srchQ);}
+}
+function renderKw(id){const kw=S.kws.find(k=>k.id===id);if(!kw)return;const a=S.news[id]||[],nc=a.filter(x=>x.isNew).length;$v('kwTtl',kw.icon+' '+kw.name);$v('kwSub',`총 ${a.length}건 · 신규 ${nc}건`);updUpd('kwUpd',S.kwLast[id]||S.lastNews);hideE('kwErr');renderNList(el('kwList'),a);}
+function renderNewNews(){let arr=[];S.kws.forEach(k=>{(S.news[k.id]||[]).filter(a=>a.isNew).forEach(a=>arr.push({...a,kwName:k.name}));});arr.sort((a,b)=>+new Date(b.pubDate)-+new Date(a.pubDate));$v('newSub',`총 ${arr.length}건`);el('newList').innerHTML=arr.length?arr.map(a=>nHTML(a)).join(''):emptyH('✅','신규 뉴스 없음','모든 뉴스를 확인했습니다<br>↻ 버튼으로 새로 수집하세요');}
+function renderAll(){el('allTabs').innerHTML=`<button class="ftab active" onclick="filterAll('all',this)">전체</button>`+S.kws.map(k=>`<button class="ftab" onclick="filterAll('${k.id}',this)">${k.icon} ${k.name}</button>`).join('');filterAll('all');}
+function filterAll(id,btn){if(btn){el('allTabs').querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');}let a=[];if(id==='all'){S.kws.forEach(k=>{(S.news[k.id]||[]).forEach(x=>a.push({...x,kwName:k.name}));});}else{const k=S.kws.find(x=>x.id===id);a=(S.news[id]||[]).map(x=>({...x,kwName:k?.name}));}a.sort((x,y)=>+new Date(y.pubDate)-+new Date(x.pubDate));renderNList(el('allList'),a);}
+function renderYT(){el('ytTabs').innerHTML=`<button class="ftab active" onclick="filterYT('all',this)">전체</button>`+S.kws.map(k=>`<button class="ftab" onclick="filterYT('${k.id}',this)">${k.icon} ${k.name}</button>`).join('');const all=[];S.kws.forEach(k=>{(S.yt.vids[k.id]||[]).forEach(v=>all.push({...v,kwName:k.name}));});all.sort((a,b)=>+new Date(b.pubAt)-+new Date(a.pubAt));$v('ytSub',`총 ${all.length}개 · 신규 ${all.filter(v=>v.isNew).length}개`);updUpd('ytUpd',S.yt.lastAt);hideE('ytErr');renderVList(el('ytList'),all);}
+function filterYT(id,btn){if(btn){el('ytTabs').querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');}let v=[];if(id==='all'){S.kws.forEach(k=>{(S.yt.vids[k.id]||[]).forEach(x=>v.push({...x,kwName:k.name}));});}else{const k=S.kws.find(x=>x.id===id);v=(S.yt.vids[id]||[]).map(x=>({...x,kwName:k?.name}));}v.sort((a,b)=>+new Date(b.pubAt)-+new Date(a.pubAt));renderVList(el('ytList'),v);}
+function renderSet(){const k=el('ytKeyInp');k.value=S.cfg.ytKey||'';k.placeholder=S.cfg.ytKey?'저장됨 (변경하려면 입력)':'AIzaSy...';el('notifTg').className='tgsw'+(S.cfg.notif?' on':'');el('newsSel').value=S.cfg.newsInt;el('ytSel').value=S.cfg.ytInt;el('kwSet').innerHTML=S.kws.map(kw=>`<div class="kwli"><div class="kwld" style="background:var(--${kw.color})"></div><span class="kwln">${kw.icon} ${kw.name}</span>${kw.def?'<span style="font-size:10px;color:var(--text3)">기본</span>':''}<button class="kwdel" onclick="delKw('${kw.id}')" ${kw.def?'style="opacity:.25"':''}>×</button></div>`).join('');}
+function renderNList(c,arts){c.innerHTML=arts&&arts.length?[...arts].sort((a,b)=>+new Date(b.pubDate)-+new Date(a.pubDate)).map(a=>nHTML(a)).join(''):emptyH('🔍','뉴스 없음','↻ 버튼을 눌러 뉴스를 수집하세요');}
+function renderVList(c,vids){if(!vids.length){c.innerHTML=emptyH('▶','영상 없음',S.cfg.ytKey?'↻ 버튼을 눌러보세요':'설정 → YouTube API Key 입력 후 ↻');return;}c.innerHTML=vids.map(v=>`<a class="yi" href="https://www.youtube.com/watch?v=${v.vid}" target="_blank" rel="noopener"><div class="yt">${v.thumb?`<img src="${v.thumb}" loading="lazy" onerror="this.parentElement.textContent='▶'">`:'▶'}${v.isNew?'<span class="ynp">NEW</span>':''}</div><div class="yinfo"><div class="ytt">${esc(v.title)}</div><div class="ymeta"><span class="ych">🔴 ${esc(v.ch)}</span><span>·</span><span>${ago(v.pubAt)}</span>${v.kwName?`<span>· ${esc(v.kwName)}</span>`:''}</div></div></a>`).join('');}
+function nHTML(a){return`<a class="ni ${a.isNew?'isnew':''}" href="${esc(a.link)}" target="_blank" rel="noopener"><div class="nih"><div class="nit">${esc(a.title)}</div>${a.isNew?'<span class="ntag">NEW</span>':''}</div><div class="nim"><span class="nsr">${esc(a.src||'뉴스')}</span>${a.kwName?`<span class="nkw">${esc(a.kwName)}</span>`:''}<span>${ago(a.pubDate)}</span></div>${a.desc?`<div class="nd">${esc(stripH(a.desc))}</div>`:''}</a>`;}
+function updUpd(id,iso){const e=el(id);if(!e)return;e.innerHTML=iso?`🕐 마지막 업데이트: <span>${ago(iso)} (${new Date(iso).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})})</span>`:`🕐 마지막 업데이트: <span>없음</span>`;}
+function emptyH(i,t,s){return`<div class="empty"><div class="ei">${i}</div><div class="et">${t}</div><div class="es">${s}</div></div>`;}
+function showE(id,msg){const e=el(id);if(e){e.textContent=msg;e.classList.add('on');}}
+function hideE(id){const e=el(id);if(e)e.classList.remove('on');}
+
+async function fetchNews(force=false){
+  if(nBusy&&!force)return;nBusy=true;setStatus('busy','수집 중');spinFab(true);hideE('homeErr');hideE('kwErr');toast('📰 뉴스 수집 중...','i');
+  let totalNew=0,fails=0;
+  for(const kw of S.kws){
+    try{
+      setStatus('busy','수집 중');
+      const arts=await fetchOneKw(kw);
+      const existIds=new Set((S.news[kw.id]||[]).map(a=>a.id));
+      const oldArts=(S.news[kw.id]||[]).map(a=>({...a,isNew:false}));
+      const fresh=arts.filter(a=>!existIds.has(a.id)).map(a=>({...a,isNew:true,fetchAt:new Date().toISOString()}));
+      totalNew+=fresh.length;S.news[kw.id]=[...fresh,...oldArts].slice(0,150);S.kwLast[kw.id]=new Date().toISOString();
+      if(fresh.length>0)setB(kw.id==='daemyung'||kw.id==='hurim'?kw.id:'home');
+    }catch(e){console.warn('뉴스 실패:',kw.name,e.message);fails++;}
+    await ms(1200);
+  }
+  S.lastNews=new Date().toISOString();resetNTimer();saveS();reRender();spinFab(false);nBusy=false;
+  if(fails===S.kws.length){const msg='⚠️ 뉴스 수집 실패 ('+fails+'개). 잠시 후 다시 시도하세요.';showE('homeErr',msg);showE('kwErr',msg);const hasOld=Object.values(S.news).some(a=>a.length>0);setStatus(hasOld?'on':'idle','');toast('수집 실패 — 네트워크 확인 후 재시도','e');}
+  else{setStatus('on','');if(totalNew>0){setB('home');toast(`✨ 새 뉴스 ${totalNew}건!`,'s');notify('뉴스 모니터',`새 뉴스 ${totalNew}건 도착`);}else toast('뉴스 최신 상태 ✓','i');}
+}
+async function fetchOneKw(kw){const rssUrl=`https://news.google.com/rss/search?q=${encodeURIComponent(kw.name)}&hl=ko&gl=KR&ceid=KR:ko`;const errors=[];for(let i=0;i<PROXIES.length;i++){try{const items=await PROXIES[i](rssUrl);if(items&&items.length>0){if(i>0)console.log(`[${kw.name}] P${i+1}성공 ${items.length}건`);return items;}errors.push(`P${i+1}:빈결과`);}catch(e){console.warn(`[${kw.name}] P${i+1}:`,e.message);errors.push(`P${i+1}:${e.message.slice(0,20)}`);}if(i<PROXIES.length-1)await ms(500);}throw new Error(`모든프록시실패 ${errors.slice(0,3).join("|")}`);}
+function parseJ(it){const raw=it.title||'';const link=it.link||it.guid||'#';return{id:it.guid||link||raw,title:cleanT(raw),link,src:it.author||srcFrom(raw),pubDate:it.pubDate||it.published||'',desc:stripH(it.description||it.content||'').slice(0,200),isNew:false};}
+function parseXML(xmlStr){
+  let s=xmlStr.trim();
+  if(s.charCodeAt(0)===0xFEFF)s=s.slice(1);
+  let doc;
+  try{doc=new DOMParser().parseFromString(s,'text/xml');}catch(e){throw new Error('XML파싱실패');}
+  if(doc.querySelector('parsererror')){
+    try{const h=new DOMParser().parseFromString(s,'text/html');
+      if(!h.querySelectorAll('item').length)throw new Error('no item');doc=h;
+    }catch(e2){throw new Error('XML파싱오류');}
+  }
+  const items=Array.from(doc.querySelectorAll('item'));
+  if(!items.length)throw new Error('뉴스항목없음');
+  return items.map(item=>{
+    const g=tag=>{const el=item.querySelector(tag);return el?(el.textContent||'').trim():'';};
+    const raw=g('title');
+    let link=g('link');
+    if(!link||link==='#'||!link.startsWith('http')){
+      const gu=item.querySelector('guid');
+      link=gu?(gu.textContent||'').trim():'';
+    }
+    if(!link)link='#';
+    return{
+      id:g('guid')||link||raw,
+      title:cleanT(raw),link,src:srcFrom(raw),
+      pubDate:g('pubDate')||g('dc:date')||g('published')||'',
+      desc:stripH(g('description')||g('summary')||'').slice(0,200),
+      isNew:false
+    };
+  }).filter(a=>a.title&&a.link&&a.link!=='#'&&a.link.startsWith('http'));
+}
+async function fetchYT(force=false){
+  if(yBusy&&!force)return;if(!S.cfg.ytKey)return;yBusy=true;hideE('ytErr');toast('▶ YouTube 수집 중...','i');
+  let totalNew=0,errMsg='';
+  for(const kw of S.kws){
+    try{const vids=await fetchYTKw(kw);const existIds=new Set(Object.values(S.yt.vids).flat().map(v=>v.vid));const fresh=vids.filter(v=>!existIds.has(v.vid)).map(v=>({...v,isNew:true}));totalNew+=fresh.length;const old=(S.yt.vids[kw.id]||[]).map(v=>({...v,isNew:false}));S.yt.vids[kw.id]=[...fresh,...old].slice(0,30);S.yt.quota=(S.yt.quota||0)+100;if(fresh.length>0)setB('youtube');}
+    catch(e){errMsg=(errMsg?errMsg+' / ':'')+`[${kw.name}] ${e.message}`;console.warn('YT 실패:',kw.name,e.message);}
+    await ms(400);
+  }
+  S.yt.lastAt=new Date().toISOString();resetYTimer();saveS();if(curPage==='youtube')renderYT();yBusy=false;
+  if(errMsg){showE('ytErr','⚠️ YouTube 오류: '+errMsg);toast('YouTube 오류','e');}
+  else if(totalNew>0){setB('youtube');toast(`▶ YouTube ${totalNew}개 신규!`,'s');notify('뉴스 모니터',`YouTube 새 영상 ${totalNew}개`);}
+  else toast('YouTube 최신 상태 ✓','i');
+}
+async function fetchYTKw(kw){
+  const p=new URLSearchParams({part:'snippet',q:kw.name,type:'video',order:'date',maxResults:'10',regionCode:'KR',relevanceLanguage:'ko',key:S.cfg.ytKey});
+  let r;
+  try{r=await fetchT(`${YT_API}?${p}`);}catch(e){throw new Error('네트워크 오류: '+e.message);}
+  if(!r.ok){
+    let errMsg=`HTTP ${r.status}`;
+    try{
+      const e=await r.json();
+      const code=(e.error?.errors||[{reason:''}])[0].reason||'';
+      const msg=e.error?.message||'';
+      if(code==='quotaExceeded'||msg.includes('quota'))errMsg='일일 할당량 초과 → 내일 자정(UTC) 이후 자동복구. 현재 영상은 그대로 유지됩니다.';
+      else if(code==='keyInvalid'||code==='badRequest'||r.status===400)errMsg='API Key 오류 → 설정에서 Key를 다시 복사·붙여넣기 하세요.';
+      else if(code==='ipRefererBlocked'||code==='refererNotAllowedByKey')errMsg='API Key에 도메인 제한 설정됨 → Google Cloud Console에서 현재 도메인을 허용하거나 제한을 해제하세요.';
+      else if(code==='accessNotConfigured'||msg.includes('not been used'))errMsg='YouTube Data API v3 미활성화 → Google Cloud Console → API 라이브러리에서 활성화하세요.';
+      else if(r.status===403)errMsg='접근 거부(403) → '+msg.slice(0,60);
+      else errMsg=msg||errMsg;
+    }catch(e2){}
+    throw new Error(errMsg);
+  }
+  const d=await r.json();
+  return(d.items||[]).map(it=>({vid:it.id.videoId,title:it.snippet.title,ch:it.snippet.channelTitle,pubAt:it.snippet.publishedAt,thumb:it.snippet.thumbnails?.medium?.url||'',isNew:false}));
+}
+
+function resetNTimer(){nLeft=(S.cfg.newsInt||60)*60;}
+function resetYTimer(){yLeft=(S.cfg.ytInt||180)*60;}
+function startTimers(){
+  if(S.lastNews){const e=Math.floor((Date.now()-new Date(S.lastNews))/1000);nLeft=Math.max(0,(S.cfg.newsInt||60)*60-e);}else nLeft=0;
+  if(S.yt.lastAt){const e=Math.floor((Date.now()-new Date(S.yt.lastAt))/1000);yLeft=Math.max(0,(S.cfg.ytInt||180)*60-e);}else yLeft=0;
+  updTimers();
+  tick=setInterval(()=>{if(!autoOn)return;nLeft=Math.max(0,nLeft-1);yLeft=Math.max(0,yLeft-1);updTimers();},1000);
+}
+function updTimers(){const f=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');const n=el('tnews'),y=el('tyt');if(n)n.textContent=f(nLeft);if(y)y.textContent=f(yLeft);}
+function reRender(){if(curPage==='home')renderHome();else if(curPage==='kw'&&curKwId)renderKw(curKwId);else if(curPage==='all-news')renderAll();else if(curPage==='new-news')renderNewNews();}
+
+function manualRefresh(){fetchNews(true);if(S.cfg.ytKey)fetchYT(true);}
+function toggleAuto(){autoOn=!autoOn;const b=el('fabS');b.textContent=autoOn?'⏹':'▶';b.style.background=autoOn?'var(--red)':'var(--green)';toast(autoOn?'자동 갱신 시작':'자동 갱신 중지','i');}
+
+// 단일 키워드만 새로고침
+async function fetchSingleKw(kwId){
+  const kw=S.kws.find(k=>k.id===kwId);
+  if(!kw||nBusy)return;
+  nBusy=true;setStatus('busy','');hideE('homeErr');hideE('kwErr');
+  try{
+    const arts=await fetchOneKw(kw);
+    const existIds=new Set((S.news[kw.id]||[]).map(a=>a.id));
+    const fresh=arts.filter(a=>!existIds.has(a.id)).map(a=>({...a,isNew:true,fetchAt:new Date().toISOString()}));
+    const old=(S.news[kw.id]||[]).map(a=>({...a,isNew:false}));
+    S.news[kw.id]=[...fresh,...old].slice(0,150);
+    S.kwLast[kw.id]=new Date().toISOString();
+    S.lastNews=new Date().toISOString();
+    if(fresh.length>0){setB(kw.id==='daemyung'||kw.id==='hurim'?kw.id:'home');toast(`✨ [${kw.name}] ${fresh.length}건 신규!`,'s');}
+    else toast(`[${kw.name}] 최신 상태 ✓`,'i');
+    saveS();reRender();setStatus('on','');
+  }catch(e){
+    toast(`[${kw.name}] 수집 실패: ${e.message.slice(0,30)}`,'e');
+    showE('kwErr','⚠️ '+e.message);const hasOld2=Object.values(S.news).some(a=>a.length>0);setStatus(hasOld2?'on':'idle','');
+  }
+  nBusy=false;
+}
+function refreshKwById(kwId,btn){
+  if(btn){btn.classList.add('spin');btn.textContent='↻';}
+  fetchSingleKw(kwId).finally(()=>{if(btn){btn.classList.remove('spin');}});
+}
+// 검색
+let srchQ='';
+function doSearch(q){
+  srchQ=q.trim();
+  const res=el('srchRes');
+  if(!srchQ){res.style.display='none';renderHome();return;}
+  const lq=srchQ.toLowerCase();
+  let hits=[];
+  S.kws.forEach(k=>{(S.news[k.id]||[]).forEach(a=>{if((a.title||'').toLowerCase().includes(lq)||(a.desc||'').toLowerCase().includes(lq))hits.push({...a,kwName:k.name});});});
+  hits.sort((a,b)=>+new Date(b.pubDate)-+new Date(a.pubDate));
+  res.style.display='block';res.textContent=`검색 결과 ${hits.length}건`;
+  el('homeList').innerHTML=hits.length?hits.map(a=>nHTML(a)).join(''):emptyH('🔍','검색 결과 없음',`"${srchQ}"에 해당하는 뉴스가 없습니다`);
+  // 통계·타이머 영역은 숨기지 않고 목록만 교체
+}
+function doRefKw(){
+  if(curKwId){
+    el('kwRef').classList.add('spin');
+    fetchSingleKw(curKwId).finally(()=>el('kwRef').classList.remove('spin'));
+  } else {
+    el('kwRef').classList.add('spin');
+    fetchNews(true).finally(()=>el('kwRef').classList.remove('spin'));
+  }
+}
+function doRefAll(){el('allRef').classList.add('spin');fetchNews(true).finally(()=>el('allRef').classList.remove('spin'));}
+function doRefNew(){el('newRef').classList.add('spin');fetchNews(true).then(()=>renderNewNews()).finally(()=>el('newRef').classList.remove('spin'));}
+function doRefYT(){if(!S.cfg.ytKey){toast('설정에서 YouTube API Key를 먼저 입력하세요','e');return;}el('ytRef').classList.add('spin');fetchYT(true).finally(()=>el('ytRef').classList.remove('spin'));}
+function spinFab(on){el('fabR').classList[on?'add':'remove']('spin');}
+function setStatus(s,txt){const d=el('sdot'),t=el('fetchStatus');d.className='sdot '+s;if(t){const labels={idle:'⏰ 대기 중',busy:'🔄 수집 중...',on:'✅ 정상'};t.textContent=txt||(labels[s]||'');}}
+
+function saveYtKey(){const v=el('ytKeyInp').value.trim();S.cfg.ytKey=v;saveS();toast(v?'✅ API Key 저장됨':'API Key 삭제됨',v?'s':'i');if(v){el('ytKeyInp').placeholder='저장됨';resetYTimer();}}
+function clearYtKey(){S.cfg.ytKey='';saveS();el('ytKeyInp').value='';el('ytKeyInp').placeholder='AIzaSy...';toast('API Key 삭제됨','i');}
+async function testYtKey(){const k=el('ytKeyInp').value.trim()||S.cfg.ytKey;if(!k){toast('API Key를 입력하세요','e');return;}try{const r=await fetchT(`${YT_API}?${new URLSearchParams({part:'snippet',q:'테스트',type:'video',maxResults:'1',key:k})}`);if(r.ok)toast('✅ API Key 정상!','s');else{const e=await r.json();toast('❌ '+(e.error?.message||'Key 오류').slice(0,40),'e');}}catch{toast('연결 실패','e');}}
+function toggleNotif(){if(S.cfg.notif){S.cfg.notif=false;saveS();el('notifTg').className='tgsw';toast('알림 비활성화','i');}else Notification.requestPermission().then(p=>{if(p==='granted'){S.cfg.notif=true;saveS();el('notifTg').className='tgsw on';toast('알림 활성화','s');}else toast('알림 권한 거부됨','e');});}
+function saveNewsInt(){S.cfg.newsInt=+el('newsSel').value;saveS();resetNTimer();toast('갱신 주기 저장','s');}
+function saveYtInt(){S.cfg.ytInt=+el('ytSel').value;saveS();resetYTimer();toast('YouTube 갱신 주기 저장','s');}
+function saveIntervals(){S.cfg.newsInt=+el('newsSel').value;S.cfg.ytInt=+el('ytSel').value;saveS();resetNTimer();resetYTimer();toast('✅ 설정 저장됨','s');}
+async function refreshHome(){const btn=el('homeRefBtn');if(btn){btn.classList.add('spin');btn.disabled=true;}await fetchNews(true);if(btn){btn.classList.remove('spin');btn.disabled=false;}}
+async function refreshHomeYT(){const btn=el('homeRefYTBtn');if(btn){btn.classList.add('spin');btn.disabled=true;}await fetchYT(true);if(btn){btn.classList.remove('spin');btn.disabled=false;}}
+function addKw(){const inp=el('newKwInp'),name=inp.value.trim();if(!name)return;if(S.kws.find(k=>k.name===name)){toast('이미 있는 키워드','e');return;}S.kws.push({id:'kw_'+Date.now(),name,color:COLORS[S.kws.length%COLORS.length],icon:ICONS[Math.floor(Math.random()*ICONS.length)],def:false});inp.value='';saveS();renderSet();renderHome();toast(`'${name}' 추가됨`,'s');}
+function delKw(id){const kw=S.kws.find(k=>k.id===id);if(!kw)return;if(kw.def){toast('기본 키워드는 삭제 불가','e');return;}if(!confirm(`'${kw.name}' 삭제?`))return;S.kws=S.kws.filter(k=>k.id!==id);delete S.news[id];delete S.yt.vids[id];saveS();renderSet();renderHome();toast(`'${kw.name}' 삭제됨`,'i');}
+function clearData(){if(!confirm('모든 뉴스 데이터를 삭제할까요?'))return;S.news={};S.yt={vids:{},quota:0,lastAt:null};S.lastNews=null;S.kwLast={};saveS();renderHome();toast('초기화 완료','i');}
+
+function notify(title,body){if(!S.cfg.notif||!('Notification' in window)||Notification.permission!=='granted')return;if('serviceWorker' in navigator&&navigator.serviceWorker.controller)navigator.serviceWorker.controller.postMessage({type:'NOTIFY',title,body});else try{new Notification(title,{body});}catch(e){}}
+
+async function fetchT(url,timeout=8000){const ctrl=new AbortController();const id=setTimeout(()=>ctrl.abort(),timeout);try{const r=await fetch(url,{cache:'no-store',signal:ctrl.signal});clearTimeout(id);return r;}catch(e){clearTimeout(id);throw e;}}
+function enc(s){return encodeURIComponent(s);}
+function ago(ds){if(!ds)return'-';const d=new Date(ds),now=new Date(),df=Math.floor((now-d)/1000);if(df<60)return'방금 전';if(df<3600)return Math.floor(df/60)+'분 전';if(df<86400)return Math.floor(df/3600)+'시간 전';if(df<604800)return Math.floor(df/86400)+'일 전';return d.toLocaleDateString('ko-KR');}
+function cleanT(t){return t.replace(/ - [^-]+$/,'').trim();}
+function srcFrom(t){const m=t.match(/ - ([^-]+)$/);return m?m[1].trim():'뉴스';}
+function stripH(h){return h.replace(/<[^>]+>/g,'').replace(/&[a-z#0-9]+;/g,' ').replace(/\s+/g,' ').trim();}
+function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function $v(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
+function el(id){return document.getElementById(id);}
+function ms(n){return new Promise(r=>setTimeout(r,n));}
+function toast(msg,t='i'){const e=el('toast');e.textContent=msg;e.className=`toast ${t} show`;clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),3200);}
+
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+
+function init(){setStatus('idle','');renderHome();startTimers();const hasNews=Object.values(S.news).some(a=>a.length>0);if(hasNews)setStatus('on','');history.replaceState({page:"home"},"","#home");window.addEventListener("popstate",e=>{const st=e.state;if(st&&st.page)nav(st.page,st.kwId||null,true);else nav("home",null,true);});}
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
