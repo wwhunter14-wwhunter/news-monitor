@@ -420,7 +420,7 @@ function saveKwEdit(id){
   kw.name=name;kw.icon=icon;kw.color=color;
   saveS();renderSet();renderHome();toast(`'${name}' 수정됨`,'s');
 }
-function addKw(){const inp=el('newKwInp'),name=inp.value.trim();if(!name)return;if(S.kws.find(k=>k.name===name)){toast('이미 있는 키워드','e');return;}S.kws.push({id:'kw_'+Date.now(),name,color:COLORS[S.kws.length%COLORS.length],icon:ICONS[Math.floor(Math.random()*ICONS.length)],def:false});inp.value='';saveS();renderSet();renderHome();toast(`'${name}' 추가됨`,'s');}
+function addKw(){const inp=el('newKwInp'),name=inp.value.trim();if(!name)return;if(S.kws.length>=5){toast('키워드는 최대 5개까지 추가할 수 있습니다','e');return;}if(S.kws.find(k=>k.name===name)){toast('이미 있는 키워드','e');return;}S.kws.push({id:'kw_'+Date.now(),name,color:COLORS[S.kws.length%COLORS.length],icon:ICONS[Math.floor(Math.random()*ICONS.length)],def:false});inp.value='';saveS();renderSet();renderHome();toast(`'${name}' 추가됨`,'s');}
 function delKw(id){const kw=S.kws.find(k=>k.id===id);if(!kw)return;if(!confirm(`'${kw.name}' 삭제?`))return;S.kws=S.kws.filter(k=>k.id!==id);delete S.news[id];delete S.yt.vids[id];saveS();renderSet();renderHome();toast(`'${kw.name}' 삭제됨`,'i');}
 function clearData(){if(!confirm('모든 뉴스 데이터를 삭제할까요?'))return;S.news={};S.yt={vids:{},quota:0,lastAt:null};S.lastNews=null;S.kwLast={};saveS();renderHome();toast('초기화 완료','i');}
 
