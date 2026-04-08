@@ -125,7 +125,7 @@
   <div class="ss"><div class="sst">키워드 관리</div><div id="kwSet"></div><div class="akwf"><input type="text" class="akwi" id="newKwInp" placeholder="키워드 입력 (예: 삼성전자)" onkeydown="if(event.key==='Enter')addKw()"><button class="akwb" onclick="addKw()">+ 추가</button></div></div>
   <div class="ss"><div class="sst">데이터</div>
     <div class="sr"><span class="si">🗑️</span><div class="sc2"><div class="sl">전체 초기화</div><div class="sd">수집된 모든 뉴스·영상 삭제</div><button class="sbtn r" style="margin-top:8px" onclick="clearData()">초기화</button></div></div>
-    <div class="sr"><span class="si">ℹ️</span><div class="sc2"><div class="sl">뉴스 모니터 v2.1</div><div class="sd">Google News RSS 3중 프록시 + YouTube API v3</div></div></div>
+    <div class="sr"><span class="si">ℹ️</span><div class="sc2"><div class="sl">뉴스 모니터 v2.2</div><div class="sd">Google News RSS 6중 프록시 + YouTube API v3</div></div></div>
   </div>
   <div style="height:16px"></div>
 </div>
@@ -143,9 +143,17 @@ const YT_API='https://www.googleapis.com/youtube/v3/search';
 const COLORS=['blue','green','orange','purple','cyan','pink'];
 const ICONS=['📈','🤖','⚡','🏭','💡','🔬','🌱','💊','🚀','🏗️','🎯','💰','🔋','🌐','🖥️'];
 
-/* ══ 3중 프록시 ══ */
+/* ══ 6중 프록시 ══ */
 const PROXIES=[
-  // P1: rss2json - count 없이 사용 (무료 CORS 지원 확인됨)
+  // P1: corsproxy.io (직접 XML 파싱 — rss2json 422 우회)
+  async(u)=>{
+    const r=await fetchT('https://corsproxy.io/?'+enc(u),10000);
+    if(!r.ok)throw new Error('corsproxy '+r.status);
+    const t=await r.text();
+    if(!t||!t.includes('<item>'))throw new Error('corsproxy 빈결과');
+    return parseXML(t);
+  },
+  // P2: rss2json (JSON 파싱)
   async(u)=>{
     const r=await fetchT('https://api.rss2json.com/v1/api.json?rss_url='+enc(u),10000);
     if(!r.ok)throw new Error('rss2json HTTP '+r.status);
@@ -154,7 +162,15 @@ const PROXIES=[
     if(!d.items||!d.items.length)throw new Error('rss2json 빈결과');
     return d.items.map(parseJ);
   },
-  // P2: codetabs (trailing slash 사용)
+  // P3: allorigins /raw (직접 XML)
+  async(u)=>{
+    const r=await fetchT('https://api.allorigins.win/raw?url='+enc(u),12000);
+    if(!r.ok)throw new Error('allorigins-raw '+r.status);
+    const t=await r.text();
+    if(!t||!t.includes('<item>'))throw new Error('allorigins-raw 빈결과');
+    return parseXML(t);
+  },
+  // P4: codetabs (trailing slash 사용)
   async(u)=>{
     const r=await fetchT('https://api.codetabs.com/v1/proxy/?quest='+enc(u),10000);
     if(!r.ok)throw new Error('codetabs '+r.status);
@@ -162,13 +178,21 @@ const PROXIES=[
     if(!t||!t.includes('<item>'))throw new Error('codetabs 빈결과');
     return parseXML(t);
   },
-  // P3: allorigins /get
+  // P5: allorigins /get (JSON wrapping)
   async(u)=>{
     const r=await fetchT('https://api.allorigins.win/get?url='+enc(u),12000);
     if(!r.ok)throw new Error('allorigins '+r.status);
     const d=await r.json();
     if(!d.contents||!d.contents.includes('<item>'))throw new Error('allorigins 빈결과');
     return parseXML(d.contents);
+  },
+  // P6: cors.sh
+  async(u)=>{
+    const r=await fetchT('https://proxy.cors.sh/'+u,10000);
+    if(!r.ok)throw new Error('cors.sh '+r.status);
+    const t=await r.text();
+    if(!t||!t.includes('<item>'))throw new Error('cors.sh 빈결과');
+    return parseXML(t);
   }
 ]
 
